@@ -1,4 +1,5 @@
-﻿using UnityEditorInternal;
+﻿using System.IO;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace EditorTools {
@@ -35,12 +36,10 @@ namespace EditorTools {
         new Object[] { _instance },
         GetFilePath(),
         true);
-      
-      // Debug.Log("Saved");
     }
 
     protected static string GetFilePath() {
-      return "UserSettings/" + typeof(T).Name + ".asset";
+      return Path.Combine(Const.UserSettings, Const.EditorTools, $"{typeof(T).Name}.asset");
     }
   }
 
