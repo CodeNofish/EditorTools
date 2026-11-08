@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace EditorTools {
 
+  /// <summary>
+  /// 存储于 UserSettings 目录下的单例
+  /// </summary>
+  /// <typeparam name="T">具体设置对象</typeparam>
   public abstract class UserSettingsSingleton<T> : ScriptableObject where T : UserSettingsSingleton<T> {
     private static T _instance = null!;
 
