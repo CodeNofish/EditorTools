@@ -14,7 +14,7 @@ namespace EditorTools {
 
     // 复用 Inspector 绘制（含所有 PropertyDrawer）
     private Editor? _cachedEditor;
-    
+
     private string _title = "Settings";
 
     /// <summary>
@@ -77,8 +77,9 @@ namespace EditorTools {
         bool hadErrors = _cachedEditor.DrawDefaultInspector(); // 兼容任意字段+自定义Drawer
         bool changed = EditorGUI.EndChangeCheck() || hadErrors;
 
-        if (changed && serialized.ApplyModifiedProperties()) {
-          Save(instance); // 改即存，符合 UserSettings 语义
+        if (changed) {
+          serialized.ApplyModifiedProperties();
+          Save(instance); // 改即存
           Repaint();
         }
       }
@@ -92,7 +93,8 @@ namespace EditorTools {
           Save(instance);
         }
         if (GUILayout.Button(new GUIContent("Save", "强制保存"), GUILayout.Width(80))) {
-          if (serialized.ApplyModifiedProperties()) Save(instance);
+          serialized.ApplyModifiedProperties();
+          Save(instance);
         }
       }
     }

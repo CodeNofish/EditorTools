@@ -35,6 +35,8 @@ namespace EditorTools {
         new Object[] { _instance },
         GetFilePath(),
         true);
+      
+      // Debug.Log("Saved");
     }
 
     protected static string GetFilePath() {
