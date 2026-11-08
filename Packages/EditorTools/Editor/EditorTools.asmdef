@@ -1,0 +1,7 @@
+﻿{
+  "name": "EditorTools",
+  "rootNamespace": "EditorTools",
+  "includePlatforms": [
+    "Editor"
+  ]
+}

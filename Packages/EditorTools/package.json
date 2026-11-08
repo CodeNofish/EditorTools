@@ -1,0 +1,25 @@
+﻿{
+  "name": "fishwork.editor-tools",
+  "displayName": "EditorTools",
+  "author": {
+    "name": "猫咪红茶",
+    "email": "1980114953@qq.com",
+    "url": "https://github.com/CodeNofish"
+  },
+  "version": "1.0.0",
+  "unity": "6.0",
+  "description": "Develop Tools for Unity Editor.",
+  "keywords": [
+    "editor",
+    "tools"
+  ],
+  "license": "MIT",
+  "category": "Editor",
+  "dependencies": {
+  },
+  "samples": [
+  ],
+  "documentationUrl": "https://github.com/CodeNofish/EditorTools/blob/main/Packages/EditorTools/CHANGELOG.md",
+  "changelogUrl": "https://github.com/CodeNofish/EditorTools/blob/main/Packages/EditorTools/CHANGELOG.md",
+  "licensesUrl": "https://github.com/CodeNofish/EditorTools/blob/main/Packages/EditorTools/LICENSE.md"
+}

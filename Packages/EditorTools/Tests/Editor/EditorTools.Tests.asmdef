@@ -1,0 +1,10 @@
+﻿{
+  "name": "EditorTools.Tests",
+  "rootNamespace": "EditorTools.Tests",
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}
