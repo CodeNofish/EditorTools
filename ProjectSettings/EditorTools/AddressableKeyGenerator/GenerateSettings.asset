@@ -11,10 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db3c25ebaab14e6283ad07a1655de330, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: EditorTools.AddressableKeyGenerator::EditorTools.AddressableKeyGenerator.AddressableKeyGenConfig
-  enable: 0
+  m_EditorClassIdentifier: EditorTools.AddressableKeyGenerator::EditorTools.AddressableKeyGenerator.GenerateSettings
   contentRoot: Assets/GameContent
   outputPath: Assets/Scripts/AddressableKeys.cs
   ignoredDirectories: []
   nameSpace: Core
-  className: AddressableKeys
+  classname: AddressableKeys

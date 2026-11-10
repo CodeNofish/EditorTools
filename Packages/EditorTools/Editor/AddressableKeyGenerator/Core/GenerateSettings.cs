@@ -1,12 +1,13 @@
 ﻿#if USE_ADDRESSABLES
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace EditorTools.AddressableKeyGenerator {
 
   [Serializable]
-  [FilePath("ProjectSettings/EditorTools/AddressableKeyGenerateSettings.asset", FilePathAttribute.Location.ProjectFolder)]
+  [FilePath("ProjectSettings/EditorTools/AddressableKeyGenerator/GenerateSettings.asset", FilePathAttribute.Location.ProjectFolder)]
   internal class GenerateSettings : ScriptableSingleton<GenerateSettings> {
     static GenerateSettings() {
       PathTools.CreateDirectoryIfNeeded(GetFilePath());
@@ -41,6 +42,14 @@ namespace EditorTools.AddressableKeyGenerator {
     /// </summary>
     [SerializeField]
     public string classname = "AddressableKeys";
+
+    public void CreateIfNeeded() {
+      var filePath = GetFilePath();
+      if (File.Exists(filePath) == false) {
+        PathTools.CreateDirectoryIfNeeded(filePath);
+        Save(true);
+      }
+    }
   }
 
 }

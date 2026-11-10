@@ -13,7 +13,7 @@ namespace EditorTools.AddressableKeyGenerator {
 
   internal static class Program {
     private const string FallbackGroupName = "Ungrouped";
-
+    
     internal static void GenerateAddressableKey() {
       var settings = GenerateSettings.instance;
 
@@ -25,7 +25,7 @@ namespace EditorTools.AddressableKeyGenerator {
       File.WriteAllTextAsync(settings.outputPath, renderResult)
         .ContinueWith(_ => { AssetDatabase.ImportAsset(settings.outputPath); });
 
-      Debug.Log(renderResult);
+      // Debug.Log(renderResult);
     }
 
 

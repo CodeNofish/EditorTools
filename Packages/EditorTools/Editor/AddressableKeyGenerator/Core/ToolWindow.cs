@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -12,6 +13,10 @@ namespace EditorTools.AddressableKeyGenerator {
     }
 
     private SerializedObject? _serializedSettings;
+
+    private void OnEnable() {
+      GenerateSettings.instance.CreateIfNeeded();
+    }
 
     private void OnDisable() {
       _serializedSettings?.Dispose();
