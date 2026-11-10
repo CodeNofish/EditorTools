@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: EditorTools.AddressableKeyGenerator::EditorTools.AddressableKeyGenerator.GenerateSettings
   contentRoot: Assets/GameContent
   outputPath: Assets/Scripts/AddressableKeys.cs
-  ignoredDirectories: []
+  ignoredDirectories: 
   nameSpace: Core
   classname: AddressableKeys

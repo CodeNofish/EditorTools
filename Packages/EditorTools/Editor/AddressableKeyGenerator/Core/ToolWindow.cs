@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -50,25 +49,12 @@ namespace EditorTools.AddressableKeyGenerator {
       };
       root.Add(outputPathField);
 
-      // TODO 支持绑定 string[] 
-      // var list = new List<string>(items ?? System.Array.Empty<string>());
-      //
-      // var listView = new ListView {
-      //   itemsSource = list,
-      //   fixedItemHeight = 24,
-      //   makeItem = () => new TextField(),
-      //   bindItem = (element, index) => {
-      //     var field = (TextField)element;
-      //     field.SetValueWithoutNotify(list[index]);
-      //
-      //     field.RegisterValueChangedCallback(evt => {
-      //       list[index] = evt.newValue;
-      //       ApplyToStringArray();
-      //     });
-      //   }
-      // };
-      // root.Add(outputPathField);
-
+      // ignoredDirectories
+      var ignoredDirectoriesField = new TextField("Ignored Directories") {
+        bindingPath = nameof(GenerateSettings.ignoredDirectories)
+      };
+      root.Add(ignoredDirectoriesField);
+      
       // Class Name
       var outputClassNameField = new TextField("OutputClass Name") {
         bindingPath = nameof(GenerateSettings.classname)

@@ -24,8 +24,6 @@ namespace EditorTools.AddressableKeyGenerator {
       PathTools.CreateDirectoryIfNeeded(settings.outputPath);
       File.WriteAllTextAsync(settings.outputPath, renderResult)
         .ContinueWith(_ => { AssetDatabase.ImportAsset(settings.outputPath); });
-
-      // Debug.Log(renderResult);
     }
 
 
@@ -66,23 +64,28 @@ namespace EditorTools.AddressableKeyGenerator {
 
     private static bool IsIgnored(AddressableAssetEntry entry) {
       var settings = GenerateSettings.instance;
-      var assetPath = ResolveAssetPath(entry);
-      if (!string.IsNullOrEmpty(assetPath)) {
-        foreach (var directory in settings.ignoredDirectories) {
-          if (PathTools.IsUnder(assetPath, directory)) return true;
+      var assetPath = entry.AssetPath;
+
+      if (string.IsNullOrEmpty(assetPath)) return false;
+
+      foreach (var directory in settings.GetIgnoredDirectories()) {
+        if (assetPath.StartsWith(directory)) {
+          // Debug.Log($"Skip {assetPath}");
+          return true;
         }
       }
+      
       return false;
     }
 
-    private static string ResolveAssetPath(AddressableAssetEntry entry) {
-      var current = entry;
-      for (var i = 0; current != null && i < 8; i++) {
-        if (!string.IsNullOrEmpty(current.AssetPath)) return current.AssetPath;
-        current = current.ParentEntry;
-      }
-      return string.Empty;
-    }
+    // private static string ResolveAssetPath(AddressableAssetEntry entry) {
+    //   var current = entry;
+    //   for (var i = 0; current != null && i < 8; i++) {
+    //     if (!string.IsNullOrEmpty(current.AssetPath)) return current.AssetPath;
+    //     current = current.ParentEntry;
+    //   }
+    //   return string.Empty;
+    // }
 
     #endregion
 

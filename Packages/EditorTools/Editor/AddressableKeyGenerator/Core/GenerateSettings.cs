@@ -29,7 +29,7 @@ namespace EditorTools.AddressableKeyGenerator {
     /// 不生成key的目录
     /// </summary>
     [SerializeField]
-    public string[] ignoredDirectories = { };
+    public string ignoredDirectories = string.Empty;
     
     /// <summary>
     /// 生成类的命名空间
@@ -42,6 +42,10 @@ namespace EditorTools.AddressableKeyGenerator {
     /// </summary>
     [SerializeField]
     public string classname = "AddressableKeys";
+
+    public string[] GetIgnoredDirectories() {
+      return ignoredDirectories.Split(',');
+    }
 
     public void CreateIfNeeded() {
       var filePath = GetFilePath();
