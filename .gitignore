@@ -120,6 +120,9 @@ InitTestScene*.unity*
 /[Aa]ssets/Samples
 /[Aa]ssets/Samples/**
 
+/[Aa]ssets/Plugins
+/[Aa]ssets/Plugins/**
+
 # IDE
 /.idea
 /.vs

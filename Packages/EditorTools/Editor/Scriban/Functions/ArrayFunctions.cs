@@ -1,0 +1,1034 @@
+// Copyright (c) Alexandre Mutel. All rights reserved.
+// Licensed under the BSD-Clause 2 license.
+// See license.txt file in the project root for full license information.
+
+#nullable enable
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Text;
+using Scriban.Parsing;
+using Scriban.Runtime;
+using Scriban.Syntax;
+
+namespace Scriban.Functions {
+
+  /// <summary>
+  /// Array functions available through the object 'array' in scriban.
+  /// </summary>
+  public
+    partial class ArrayFunctions : ScriptObject {
+    [ScriptMemberIgnore]
+    public static IEnumerable Add(IEnumerable? list, object? value) {
+      if (list is null) return new ScriptRange { value };
+
+      return list is IList ? (IEnumerable)new ScriptArray(list) { value } : new ScriptRange(list) { value };
+    }
+
+    /// <summary>
+    /// Adds a value to the input list.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="value">The value to add at the end of the list</param>
+    /// <returns>A new list with the value added</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 2, 3] | array.add 4 }}
+    /// ```
+    /// ```html
+    /// [1, 2, 3, 4]
+    /// ```
+    /// </remarks>
+    public static IEnumerable Add(TemplateContext context, SourceSpan span, IEnumerable? list, object? value) {
+      if (list is null) return new ScriptRange { value };
+
+      var array = new ScriptArray();
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        array.Add(item);
+      }
+
+      array.Add(value);
+      return array;
+    }
+
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? AddRange(IEnumerable? list1, IEnumerable? list2) {
+      return Concat(list1, list2);
+    }
+
+    /// <summary>
+    /// Adds a range of values to the input list.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list1">The 1st input list</param>
+    /// <param name="list2">The 2nd input list</param>
+    /// <returns>The concatenation of the two input lists</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 2, 3] | array.add_range [4, 5] }}
+    /// ```
+    /// ```html
+    /// [1, 2, 3, 4, 5]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? AddRange(TemplateContext context, SourceSpan span, IEnumerable? list1, IEnumerable? list2) {
+      return Concat(context, span, list1, list2);
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? Compact(IEnumerable? list) {
+      return ScriptRange.Compact(list);
+    }
+
+    /// <summary>
+    /// Removes any null values from the input list.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">An input list</param>
+    /// <returns>Returns a list with null value removed</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, null, 3] | array.compact }}
+    /// ```
+    /// ```html
+    /// [1, 3]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? Compact(TemplateContext context, SourceSpan span, IEnumerable? list) {
+      return ScriptRange.Compact(context, span, list);
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? Concat(IEnumerable? list1, IEnumerable? list2) {
+      return ScriptRange.Concat(list1, list2);
+    }
+
+    /// <summary>
+    /// Concatenates two lists.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list1">The 1st input list</param>
+    /// <param name="list2">The 2nd input list</param>
+    /// <returns>The concatenation of the two input lists</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 2, 3] | array.concat [4, 5] }}
+    /// ```
+    /// ```html
+    /// [1, 2, 3, 4, 5]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? Concat(TemplateContext context, SourceSpan span, IEnumerable? list1, IEnumerable? list2) {
+      return ScriptRange.Concat(context, span, list1, list2);
+    }
+
+    /// <summary>
+    /// Loops through a group of strings and outputs them in the order that they were passed as parameters. Each time cycle is called, the next string that was passed as a parameter is output.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">An input list</param>
+    /// <param name="group">The group used. Default is `null`</param>
+    /// <returns>Returns a list with null value removed</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ array.cycle ['one', 'two', 'three'] }}
+    /// {{ array.cycle ['one', 'two', 'three'] }}
+    /// {{ array.cycle ['one', 'two', 'three'] }}
+    /// {{ array.cycle ['one', 'two', 'three'] }}
+    /// ```
+    /// ```html
+    /// one
+    /// two
+    /// three
+    /// one
+    /// ```
+    /// `cycle` accepts a parameter called cycle group in cases where you need multiple cycle blocks in one template.
+    /// If no name is supplied for the cycle group, then it is assumed that multiple calls with the same parameters are one group.
+    /// </remarks>
+    public static object? Cycle(TemplateContext context, SourceSpan span, IList? list, object? group = null) {
+      if (list is null) return null;
+      var strGroup = group is null ? Join(context, span, list, ",") : context.ObjectToString(@group) ?? string.Empty;
+
+      // We create a cycle variable that is dependent on the exact AST context.
+      // So we allow to have multiple cycle running in the same loop
+      var cycleKey = new CycleKey(strGroup);
+
+      object? cycleValue;
+      var currentTags = context.BuiltinState;
+      if (!currentTags.TryGetValue(cycleKey, out cycleValue) || !(cycleValue is int)) cycleValue = 0;
+
+      var cycleIndex = (int)cycleValue;
+      cycleIndex = list.Count == 0 ? 0 : cycleIndex % list.Count;
+      object? result = null;
+      if (list.Count > 0) {
+        result = list[cycleIndex];
+        cycleIndex++;
+      }
+      currentTags[cycleKey] = cycleIndex;
+
+      return result;
+    }
+
+    /// <summary>
+    /// Returns the distinct elements of the input `list`.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">An input list</param>
+    /// <param name="function">The function to apply to each item in the list that returns a boolean.</param>
+    /// <param name="args">The arguments to pass to the function</param>
+    /// <returns>A boolean indicating if one of the item in the list satisfied the function.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [" hello", " world", "20"] | array.any @string.contains "20"}}
+    /// {{ [" hello", " world", "20"] | array.any @string.contains "30"}}
+    /// ```
+    /// ```html
+    /// true
+    /// false
+    /// ```
+    /// </remarks>
+    public static bool Any(TemplateContext context, SourceSpan span, IEnumerable? list, object? function, params object?[] args) {
+      if (list is null) return false;
+      if (function is null) return false;
+      var scriptFunction = function as IScriptCustomFunction;
+      if (scriptFunction is null) return false;
+
+      var arguments = new ScriptArray();
+      arguments.Add(null);
+      arguments.AddRange(args);
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        arguments[0] = item;
+        var result = ScriptFunctionCall.Call(context, context.CurrentNode, scriptFunction, arguments);
+        if (result is bool b && b) return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Applies the specified function to each element of the input.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">An input list</param>
+    /// <param name="function">The function to apply to each item in the list</param>
+    /// <returns>Returns a list with each item being transformed by the function.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [" a", " 5", "6 "] | array.each @string.strip }}
+    /// ```
+    /// ```html
+    /// ["a", "5", "6"]
+    /// ```
+    /// </remarks>
+    public static ScriptRange? Each(TemplateContext context, SourceSpan span, IEnumerable? list, object? function) {
+      return ApplyFunction(context, span, list, function, EachProcessor);
+    }
+
+    private static IEnumerable EachInternal(TemplateContext context, ScriptNode? callerContext, SourceSpan span, IEnumerable list, IScriptCustomFunction function, Type destType) {
+      var arg = new ScriptArray(1);
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        var itemToTransform = context.ToObject(span, item, destType);
+        arg[0] = itemToTransform;
+        var itemTransformed = ScriptFunctionCall.Call(context, callerContext, function, arg);
+        yield return itemTransformed;
+      }
+    }
+
+    private static readonly ListProcessor EachProcessor = EachInternal;
+
+    /// <summary>
+    /// Filters the input list according the supplied filter function.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">An input list</param>
+    /// <param name="function">The function used to test each elemement of the list</param>
+    /// <returns>Returns a new list which contains only those elements which match the filter function.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{["", "200", "","400"] | array.filter @string.empty}}
+    /// ```
+    /// ```html
+    /// ["", ""]
+    /// ```
+    /// </remarks>
+    public static ScriptRange? Filter(TemplateContext context, SourceSpan span, IEnumerable? list, object? function) {
+      return ApplyFunction(context, span, list, function, FilterProcessor);
+    }
+
+
+    private static IEnumerable FilterInternal(
+      TemplateContext context,
+      ScriptNode? callerContext,
+      SourceSpan span,
+      IEnumerable list,
+      IScriptCustomFunction function,
+      Type destType) {
+      var arg = new ScriptArray(1);
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        var itemToTransform = context.ToObject(span, item, destType);
+        arg[0] = itemToTransform;
+        var itemTransformed = ScriptFunctionCall.Call(context, callerContext, function, arg);
+        if (context.ToBool(span, itemTransformed))
+          yield return itemToTransform;
+      }
+    }
+
+    private static readonly ListProcessor FilterProcessor = FilterInternal;
+
+    /// <summary>
+    /// Returns the first element of the input `list`.
+    /// </summary>
+    /// <param name="list">The input list</param>
+    /// <returns>The first element of the input `list`.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6] | array.first }}
+    /// ```
+    /// ```html
+    /// 4
+    /// ```
+    /// </remarks>
+    public static object? First(IEnumerable? list) {
+      if (list is null) return null;
+
+      var realList = list as IList;
+      if (realList is not null) return realList.Count > 0 ? realList[0] : null;
+
+      foreach (var item in list) return item;
+
+      return null;
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable InsertAt(IEnumerable? list, int index, object? value) {
+      if (index < 0) index = 0;
+
+      var array = list is null ? new ScriptArray() : new ScriptArray(list);
+      // Make sure that the list has already inserted elements before the index
+      for (var i = array.Count; i < index; i++) array.Add(null);
+
+      array.Insert(index, value);
+
+      return array;
+    }
+
+    /// <summary>
+    /// Inserts a `value` at the specified index in the input `list`.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="index">The index in the list where to insert the element</param>
+    /// <param name="value">The value to insert</param>
+    /// <returns>A new list with the element inserted.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ ["a", "b", "c"] | array.insert_at 2 "Yo" }}
+    /// ```
+    /// ```html
+    /// ["a", "b", "Yo", "c"]
+    /// ```
+    /// </remarks>
+    public static IEnumerable InsertAt(TemplateContext context, SourceSpan span, IEnumerable? list, int index, object? value) {
+      if (index < 0) index = 0;
+
+      var array = new ScriptArray();
+      using var loopScope = context.EnterLoopScope();
+      if (list is not null) {
+        var loopType = GetLoopType(list);
+        foreach (var item in list) {
+          context.StepLoop(span, loopType);
+          array.Add(item);
+        }
+      }
+
+      // Make sure that the list has already inserted elements before the index
+      for (var i = array.Count; i < index; i++) {
+        context.StepLoop(span);
+        array.Add(null);
+      }
+
+      array.Insert(index, value);
+
+      return array;
+    }
+
+
+    /// <summary>
+    /// Joins the element of a list separated by a delimiter string and return the concatenated string.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="delimiter">The delimiter string to use to separate elements in the output string</param>
+    /// <param name="function">An optional function that will receive the string representation of the item to join and can transform the text before joining.</param>
+    /// <returns>A new list with the element inserted.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 2, 3] | array.join "|" }}
+    /// ```
+    /// ```html
+    /// 1|2|3
+    /// ```
+    /// </remarks>
+    public static string Join(TemplateContext context, SourceSpan span, IEnumerable? list, string? delimiter, object? function = null) {
+      if (list is null) return string.Empty;
+
+      var scriptingFunction = function as IScriptCustomFunction;
+      if (function is not null && scriptingFunction is null)
+        throw new ArgumentException($"The parameter `{function}` is not a function. Maybe prefix it with @?", nameof(function));
+
+      var text = new StringBuilder();
+      var afterFirst = false;
+      var arg = new ScriptArray(1);
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var obj in list) {
+        context.StepLoop(span, loopType);
+        if (afterFirst) {
+          ValidateJoinedTextLength(context, span, text.Length, delimiter?.Length ?? 0);
+          text.Append(delimiter);
+        }
+
+        var item = context.ObjectToString(obj);
+        if (scriptingFunction is not null) {
+          arg[0] = item;
+          var result = ScriptFunctionCall.Call(context, context.CurrentNode, scriptingFunction, arg);
+          item = context.ObjectToString(result);
+        }
+
+        ValidateJoinedTextLength(context, span, text.Length, item?.Length ?? 0);
+        text.Append(item);
+        afterFirst = true;
+      }
+      return text.ToString();
+    }
+
+    private static void ValidateJoinedTextLength(TemplateContext context, SourceSpan span, int currentLength, int additionalLength) {
+      if (context.LimitToString > 0 && additionalLength > 0 && (long)currentLength + additionalLength > context.LimitToString)
+        throw new ScriptRuntimeException(span, $"Joined string exceeds LimitToString `{context.LimitToString}`.");
+    }
+
+    [ScriptMemberIgnore]
+    public static object? Last(IEnumerable? list) {
+      if (list is null) return null;
+
+      var readList = list as IList;
+      if (readList is not null) return readList.Count > 0 ? readList[readList.Count - 1] : null;
+
+      // Slow path, go through the whole list
+      return list.Cast<object>().LastOrDefault();
+    }
+
+    /// <summary>
+    /// Returns the last element of the input `list`.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <returns>The last element of the input `list`.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6] | array.last }}
+    /// ```
+    /// ```html
+    /// 6
+    /// ```
+    /// </remarks>
+    public static object? Last(TemplateContext context, SourceSpan span, IEnumerable? list) {
+      if (list is null) return null;
+
+      var readList = list as IList;
+      if (readList is not null) return readList.Count > 0 ? readList[readList.Count - 1] : null;
+
+      object? last = null;
+      var hasValue = false;
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        last = item;
+        hasValue = true;
+      }
+
+      return hasValue ? last : null;
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? Limit(IEnumerable? list, int count) {
+      return ScriptRange.Limit(list, count);
+    }
+
+    /// <summary>
+    /// Returns a limited number of elments from the input list
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="count">The number of elements to return from the input list</param>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6] | array.limit 2 }}
+    /// ```
+    /// ```html
+    /// [4, 5]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? Limit(TemplateContext context, SourceSpan span, IEnumerable? list, int count) {
+      return ScriptRange.Limit(context, span, list, count);
+    }
+
+    /// <summary>
+    /// Accepts an array element's attribute as a parameter and creates an array out of each array element's value.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="member">The member to extract the value from</param>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{
+    /// products = [{title: "orange", type: "fruit"}, {title: "computer", type: "electronics"}, {title: "sofa", type: "furniture"}]
+    /// products | array.map "type" | array.uniq | array.sort }}
+    /// ```
+    /// ```html
+    /// ["electronics", "fruit", "furniture"]
+    /// ```
+    /// </remarks>
+    public static IEnumerable Map(TemplateContext context, SourceSpan span, object? list, string? member) {
+      return new ScriptRange(MapImpl(context, span, list, member));
+    }
+
+    private static IEnumerable MapImpl(TemplateContext context, SourceSpan span, object? list, string? member) {
+      if (list is null || member is null) yield break;
+
+      var enumerable = list as IEnumerable;
+      if (enumerable is null) {
+        var itemAccessor = context.GetMemberAccessor(list);
+        if (itemAccessor.HasMember(context, span, list, member)) {
+          itemAccessor.TryGetValue(context, span, list, member, out var value);
+          yield return value;
+        }
+        yield break;
+      }
+
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(enumerable);
+      foreach (var item in enumerable) {
+        context.StepLoop(span, loopType);
+        var itemAccessor = context.GetMemberAccessor(item);
+        if (itemAccessor.HasMember(context, span, item, member)) {
+          itemAccessor.TryGetValue(context, span, item, member, out var value);
+          yield return value;
+        }
+      }
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? Offset(IEnumerable? list, int index) {
+      return ScriptRange.Offset(list, index);
+    }
+
+    /// <summary>
+    /// Returns the remaining of the list after the specified offset
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="index">The index of a list to return elements</param>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6, 7, 8] | array.offset 2 }}
+    /// ```
+    /// ```html
+    /// [6, 7, 8]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? Offset(TemplateContext context, SourceSpan span, IEnumerable? list, int index) {
+      return ScriptRange.Offset(context, span, list, index);
+    }
+
+    [ScriptMemberIgnore]
+    public static IList RemoveAt(IList? list, int index) {
+      if (list is null) return new ScriptArray();
+
+      list = new ScriptArray(list);
+
+      // If index is negative, start from the end
+      if (index < 0) index = list.Count + index;
+
+      if (index >= 0 && index < list.Count) list.RemoveAt(index);
+      return list;
+    }
+
+    /// <summary>
+    /// Removes an element at the specified `index` from the input `list`
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="index">The index of a list to return elements</param>
+    /// <returns>A new list with the element removed. If index is negative, remove at the end of the list.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6, 7, 8] | array.remove_at 2 }}
+    /// ```
+    /// ```html
+    /// [4, 5, 7, 8]
+    /// ```
+    /// If the `index` is negative, removes at the end of the list (notice that we need to put -1 in parenthesis to avoid confusing the parser with a binary `-` operation):
+    /// ```scriban-html
+    /// {{ [4, 5, 6, 7, 8] | array.remove_at (-1) }}
+    /// ```
+    /// ```html
+    /// [4, 5, 6, 7]
+    /// ```
+    /// </remarks>
+    public static IList RemoveAt(TemplateContext context, SourceSpan span, IList? list, int index) {
+      if (list is null) return new ScriptArray();
+
+      var array = new ScriptArray();
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var item in list) {
+        context.StepLoop(span, loopType);
+        array.Add(item);
+      }
+
+      // If index is negative, start from the end
+      if (index < 0) index = array.Count + index;
+
+      if (index >= 0 && index < array.Count) array.RemoveAt(index);
+      return array;
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable Reverse(IEnumerable? list) {
+      if (list is null) return new ScriptArray();
+      return ScriptRange.Reverse(list);
+    }
+
+    /// <summary>
+    /// Reverses the input `list`
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <returns>A new list in reversed order.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6, 7] | array.reverse }}
+    /// ```
+    /// ```html
+    /// [7, 6, 5, 4]
+    /// ```
+    /// </remarks>
+    public static IEnumerable Reverse(TemplateContext context, SourceSpan span, IEnumerable? list) {
+      if (list is null) return new ScriptArray();
+      return ScriptRange.Reverse(context, span, list);
+    }
+
+    [ScriptMemberIgnore]
+    public static int Size(IEnumerable? list) {
+      if (list is null) return 0;
+      var collection = list as ICollection;
+      if (collection is not null) return collection.Count;
+
+      // Slow path, go through the whole list
+      return list.Cast<object>().Count();
+    }
+
+    /// <summary>
+    /// Returns the number of elements in the input `list`
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <returns>A number of elements in the input `list`.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [4, 5, 6] | array.size }}
+    /// ```
+    /// ```html
+    /// 3
+    /// ```
+    /// </remarks>
+    public static int Size(TemplateContext context, SourceSpan span, IEnumerable? list) {
+      if (list is null) return 0;
+
+      using var loopScope = context.EnterLoopScope();
+      var collection = list as ICollection;
+      if (collection is not null) {
+        context.CheckAbort();
+        return collection.Count;
+      }
+
+      var count = 0;
+      var loopType = GetLoopType(list);
+      foreach (var _ in list) {
+        context.StepLoop(span, loopType);
+        count++;
+      }
+
+      return count;
+    }
+
+    /// <summary>
+    /// Sorts the elements of the input `list` according to the value of each element or the value of the specified `member` of each element
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="member">The member name to sort according to its value. Null by default, meaning that the element's value are used instead. When an exact member is not found, dotted member names fall back to nested member access.</param>
+    /// <returns>A stably sorted list according to the value of each element or the value of the specified `member` of each element.</returns>
+    /// <remarks>
+    /// Equal values preserve their original relative order.
+    /// Exact member names still take precedence over dotted-path fallback.
+    /// Numbers of different types are compared by their exact value, so no precision is lost when integers, floating-point numbers and decimals are mixed.
+    /// NaN sorts before negative infinity, which sorts before finite numbers, which sort before positive infinity.
+    ///
+    /// Sorts by element's value:
+    /// ```scriban-html
+    /// {{ [10, 2, 6] | array.sort }}
+    /// ```
+    /// ```html
+    /// [2, 6, 10]
+    /// ```
+    /// Sorts by elements member's value:
+    /// ```scriban-html
+    /// {{
+    /// products = [{title: "orange", type: "fruit"}, {title: "computer", type: "electronics"}, {title: "sofa", type: "furniture"}]
+    /// products | array.sort "title" | array.map "title"
+    /// }}
+    /// ```
+    /// ```html
+    /// ["computer", "orange", "sofa"]
+    /// ```
+    /// </remarks>
+    public static IEnumerable Sort(TemplateContext context, SourceSpan span, object? list, string? member = null) {
+      if (list is null) return new ScriptRange();
+
+      var enumerable = list as IEnumerable;
+      if (enumerable is null) return new ScriptArray(1) { list };
+
+      var realList = new List<object?>();
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(enumerable);
+      foreach (var item in enumerable) {
+        context.StepLoop(span, loopType);
+        realList.Add(item);
+      }
+      if (realList.Count == 0)
+        return new ScriptArray();
+
+      var sortMember = member ?? string.Empty;
+      var comparer = SortComparer.Instance;
+      if (string.IsNullOrEmpty(sortMember))
+        realList = realList.OrderBy(item => item, comparer).ToList();
+      else
+        realList = realList.OrderBy(item => GetSortValue(context, span, item, sortMember), comparer).ToList();
+
+      return new ScriptArray(realList);
+    }
+
+    internal sealed class SortComparer : IComparer<object?> {
+      public static readonly SortComparer Instance = new();
+
+      private const int NaNOrder = -2;
+      private const int NegativeInfinityOrder = -1;
+      private const int FiniteOrder = 0;
+      private const int PositiveInfinityOrder = 1;
+
+      private SortComparer() { }
+
+      public int Compare(object? x, object? y) {
+        if (x is not null && y is not null && x.GetType() != y.GetType() && MathFunctions.IsNumber(x) && MathFunctions.IsNumber(y)) return CompareNumbers(x, y);
+
+        return Comparer<object?>.Default.Compare(x, y);
+      }
+
+      private static int CompareNumbers(object x, object y) {
+        var xOrder = GetOrder(x);
+        var yOrder = GetOrder(y);
+        if (xOrder != FiniteOrder || yOrder != FiniteOrder) return xOrder.CompareTo(yOrder);
+
+        GetExactValue(x, out var xNumerator, out var xDenominator);
+        GetExactValue(y, out var yNumerator, out var yDenominator);
+        return (xNumerator * yDenominator).CompareTo(yNumerator * xDenominator);
+      }
+
+      private static int GetOrder(object value) {
+        switch (value) {
+        case double d:
+          return double.IsNaN(d) ? NaNOrder
+            : double.IsNegativeInfinity(d) ? NegativeInfinityOrder
+            : double.IsPositiveInfinity(d) ? PositiveInfinityOrder
+            : FiniteOrder;
+        case float f:
+          return float.IsNaN(f) ? NaNOrder
+            : float.IsNegativeInfinity(f) ? NegativeInfinityOrder
+            : float.IsPositiveInfinity(f) ? PositiveInfinityOrder
+            : FiniteOrder;
+        default:
+          return FiniteOrder;
+        }
+      }
+
+      private static void GetExactValue(object value, out BigInteger numerator, out BigInteger denominator) {
+        denominator = BigInteger.One;
+        switch (value) {
+        case sbyte v: numerator = v; break;
+        case byte v: numerator = v; break;
+        case short v: numerator = v; break;
+        case ushort v: numerator = v; break;
+        case int v: numerator = v; break;
+        case uint v: numerator = v; break;
+        case long v: numerator = v; break;
+        case ulong v: numerator = v; break;
+        case BigInteger v: numerator = v; break;
+        case decimal v: GetExactDecimalValue(v, out numerator, out denominator); break;
+        case float v: GetExactDoubleValue(v, out numerator, out denominator); break;
+        case double v: GetExactDoubleValue(v, out numerator, out denominator); break;
+        default: throw new ArgumentOutOfRangeException(nameof(value), $"The type `{value.GetType()}` is not a supported number.");
+        }
+      }
+
+      private static void GetExactDecimalValue(decimal value, out BigInteger numerator, out BigInteger denominator) {
+        var bits = decimal.GetBits(value);
+        var mantissa = new BigInteger((uint)bits[0]);
+        mantissa |= (BigInteger)(uint)bits[1] << 32;
+        mantissa |= (BigInteger)(uint)bits[2] << 64;
+
+        numerator = (bits[3] & int.MinValue) != 0 ? -mantissa : mantissa;
+        denominator = BigInteger.Pow(10, (bits[3] >> 16) & 0xFF);
+      }
+
+      private static void GetExactDoubleValue(double value, out BigInteger numerator, out BigInteger denominator) {
+        var bits = BitConverter.DoubleToInt64Bits(value);
+        var exponent = (int)((bits >> 52) & 0x7FF);
+        var mantissa = bits & 0xFFFFFFFFFFFFFL;
+
+        if (exponent == 0)
+          exponent = 1;
+        else
+          mantissa |= 1L << 52;
+
+        exponent -= 1075;
+
+        var result = bits < 0 ? -new BigInteger(mantissa) : new BigInteger(mantissa);
+
+        if (exponent >= 0) {
+          numerator = result << exponent;
+          denominator = BigInteger.One;
+        } else {
+          numerator = result;
+          denominator = BigInteger.One << -exponent;
+        }
+      }
+    }
+
+    private static object? GetSortValue(TemplateContext context, SourceSpan span, object? target, string member) {
+      if (TryGetSortValue(context, span, target, member, out var value)) return value;
+
+      if (member.IndexOf('.') >= 0 && TryGetSortValueByPath(context, span, target, member.Split('.'), out value)) return value;
+
+      return null;
+    }
+
+    private static bool TryGetSortValue(TemplateContext context, SourceSpan span, object? target, string member, out object? value) {
+      if (target is null) {
+        value = null;
+        return false;
+      }
+
+      var accessor = context.GetMemberAccessor(target);
+
+      if (accessor.TryGetValue(context, span, target, member, out value)) return true;
+
+      return context.TryGetMember?.Invoke(context, span, target, member, out value) ?? false;
+    }
+
+    private static bool TryGetSortValueByPath(TemplateContext context, SourceSpan span, object? target, string[] pathMembers, out object? value) {
+      value = target;
+
+      foreach (var pathMember in pathMembers)
+        if (value is null || !TryGetSortValue(context, span, value, pathMember, out value)) {
+          value = null;
+          return false;
+        }
+
+      return true;
+    }
+
+    [ScriptMemberIgnore]
+    public static IEnumerable? Uniq(IEnumerable? list) {
+      return ScriptRange.Uniq(list);
+    }
+
+    /// <summary>
+    /// Returns the unique elements of the input `list`.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <returns>A list of unique elements of the input `list`.</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 1, 4, 5, 8, 8] | array.uniq }}
+    /// ```
+    /// ```html
+    /// [1, 4, 5, 8]
+    /// ```
+    /// </remarks>
+    public static IEnumerable? Uniq(TemplateContext context, SourceSpan span, IEnumerable? list) {
+      return ScriptRange.Uniq(context, span, list);
+    }
+
+    [ScriptMemberIgnore]
+    public static bool Contains(IEnumerable? list, object? item) {
+      if (list is null) return false;
+
+      foreach (var element in list) {
+        if (element == item || (element is not null && element.Equals(item))) return true;
+        if (element is Enum e && CompareEnum(e, item)) return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Returns if a `list` contains a specific `item`.
+    /// </summary>
+    /// <param name="context">The template context</param>
+    /// <param name="span">The source span</param>
+    /// <param name="list">The input list</param>
+    /// <param name="item">The input item</param>
+    /// <returns>**true** if `item` is in `list`; otherwise **false**</returns>
+    /// <remarks>
+    /// ```scriban-html
+    /// {{ [1, 2, 3, 4] | array.contains 4 }}
+    /// ```
+    /// ```html
+    /// true
+    /// ```
+    /// </remarks>
+    public static bool Contains(TemplateContext context, SourceSpan span, IEnumerable? list, object? item) {
+      if (list is null) return false;
+
+      using var loopScope = context.EnterLoopScope();
+      var loopType = GetLoopType(list);
+      foreach (var element in list) {
+        context.StepLoop(span, loopType);
+        if (element == item || (element is not null && element.Equals(item))) return true;
+        if (element is Enum e && CompareEnum(e, item)) return true;
+      }
+
+      return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool CompareEnum(Enum e, object? item) {
+      try {
+        if (item is string s) return Enum.Parse(e.GetType(), s)?.Equals(e) ?? false;
+        if (item is null) return false;
+        return Enum.ToObject(e.GetType(), item)?.Equals(e) ?? false;
+      } catch {
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Delegate type for function used to process a list
+    /// </summary>
+    private delegate IEnumerable ListProcessor(
+      TemplateContext context,
+      ScriptNode? callerContext,
+      SourceSpan span,
+      IEnumerable list,
+      IScriptCustomFunction function,
+      Type destType);
+
+    private static TemplateContext.LoopType GetLoopType(IEnumerable list) {
+      return list is IQueryable ? TemplateContext.LoopType.Queryable : TemplateContext.LoopType.Default;
+    }
+
+
+    /// <summary>
+    /// Attempts to apply a Scriban function to a list and returns the results as a ScriptRange
+    /// </summary>
+    /// <remarks>
+    /// Encapsulates a common approach to parameter checking for any method that will take a Scriban function and apply it to a list
+    /// </remarks>
+    private static ScriptRange? ApplyFunction(
+      TemplateContext context,
+      SourceSpan span,
+      IEnumerable? list,
+      object? function,
+      ListProcessor impl) {
+      if (list is null) return null;
+      if (function is null) return new ScriptRange(list);
+
+      var scriptingFunction = function as IScriptCustomFunction;
+      if (scriptingFunction is null) throw new ArgumentException($"The parameter `{function}` is not a function. Maybe prefix it with @?", nameof(function));
+
+      var callerContext = context.CurrentNode;
+
+      return new ScriptRange(impl(context, callerContext, span, list, scriptingFunction, scriptingFunction.GetParameterInfo(0).ParameterType));
+    }
+
+    private class CycleKey : IEquatable<CycleKey> {
+      public readonly string Group;
+
+      public CycleKey(string @group) {
+        Group = @group;
+      }
+
+      public bool Equals(CycleKey? other) {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return string.Equals(Group, other.Group);
+      }
+
+      public override bool Equals(object? obj) {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((CycleKey)obj);
+      }
+
+      public override int GetHashCode() {
+        return Group is not null ? Group.GetHashCode() : 0;
+      }
+
+      public override string ToString() {
+        return $"cycle {Group}";
+      }
+    }
+  }
+
+}

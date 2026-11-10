@@ -1,0 +1,20 @@
+﻿{
+  "name": "EditorTools.AddressableKeyGenerator",
+  "rootNamespace": "EditorTools.AddressableKeyGenerator",
+  "includePlatforms": [
+    "Editor"
+  ],
+  "references": [
+    "Scriban",
+    "Unity.Addressables",
+    "Unity.Addressables.Editor",
+    "EditorTools"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.addressables",
+      "expression": "2.11.0",
+      "define": "USE_ADDRESSABLES"
+    }
+  ]
+}
