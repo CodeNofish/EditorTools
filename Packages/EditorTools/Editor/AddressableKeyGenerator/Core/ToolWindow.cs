@@ -21,7 +21,7 @@ namespace EditorTools.AddressableKeyGenerator {
     public void CreateGUI() {
       var root = rootVisualElement;
       root.Clear();
-      
+
       root.style.paddingTop = 10;
       root.style.paddingBottom = 10;
       root.style.paddingLeft = 10;
@@ -45,6 +45,25 @@ namespace EditorTools.AddressableKeyGenerator {
       };
       root.Add(outputPathField);
 
+      // TODO 支持绑定 string[] 
+      // var list = new List<string>(items ?? System.Array.Empty<string>());
+      //
+      // var listView = new ListView {
+      //   itemsSource = list,
+      //   fixedItemHeight = 24,
+      //   makeItem = () => new TextField(),
+      //   bindItem = (element, index) => {
+      //     var field = (TextField)element;
+      //     field.SetValueWithoutNotify(list[index]);
+      //
+      //     field.RegisterValueChangedCallback(evt => {
+      //       list[index] = evt.newValue;
+      //       ApplyToStringArray();
+      //     });
+      //   }
+      // };
+      // root.Add(outputPathField);
+
       // Class Name
       var outputClassNameField = new TextField("OutputClass Name") {
         bindingPath = nameof(GenerateSettings.classname)
@@ -63,7 +82,7 @@ namespace EditorTools.AddressableKeyGenerator {
 
       // 绑定到根节点
       root.Bind(_serializedSettings);
-      
+
       // Generate Button 
       var generateButton = new Button(() => {
         _serializedSettings?.ApplyModifiedProperties();

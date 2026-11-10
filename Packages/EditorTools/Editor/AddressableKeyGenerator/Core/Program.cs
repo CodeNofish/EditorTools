@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Scriban;
 using Scriban.Runtime;
+using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
@@ -21,8 +22,8 @@ namespace EditorTools.AddressableKeyGenerator {
       var renderResult = RenderTemplate(collectResult);
 
       PathTools.CreateDirectoryIfNeeded(settings.outputPath);
-      File.WriteAllTextAsync(settings.outputPath, renderResult);
-      // .ContinueWith(_ => { AssetDatabase.ImportAsset(settings.outputPath); });
+      File.WriteAllTextAsync(settings.outputPath, renderResult)
+        .ContinueWith(_ => { AssetDatabase.ImportAsset(settings.outputPath); });
 
       Debug.Log(renderResult);
     }
