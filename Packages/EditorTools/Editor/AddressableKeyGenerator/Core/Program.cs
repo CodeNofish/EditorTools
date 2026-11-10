@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Scriban;
-using Scriban.Runtime;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -12,14 +11,14 @@ using UnityEngine;
 namespace EditorTools.AddressableKeyGenerator {
 
   internal static class Program {
-    private const string FallbackGroupName = "Ungrouped";
-    
     internal static void GenerateAddressableKey() {
       var settings = GenerateSettings.instance;
 
-      var collectResult = CollectKeys(AddressableAssetSettingsDefaultObject.Settings, out var ignoredCount, out var keyCount);
+      var addresses = CollectAddresses(AddressableAssetSettingsDefaultObject.Settings, out var ignoredCount, out var keyCount);
 
-      var renderResult = RenderTemplate(collectResult);
+      var renderResult = RenderTemplate(addresses);
+      
+      // Debug.Log(renderResult);
 
       PathTools.CreateDirectoryIfNeeded(settings.outputPath);
       File.WriteAllTextAsync(settings.outputPath, renderResult)
@@ -27,39 +26,28 @@ namespace EditorTools.AddressableKeyGenerator {
     }
 
 
-    #region Collect Entry
+    #region Collect Addresses
 
-    private static SortedDictionary<string, SortedSet<string>> CollectKeys(AddressableAssetSettings assetSettings, out int ignoredCount, out int keyCount) {
+    private static SortedSet<string> CollectAddresses(AddressableAssetSettings assetSettings, out int ignoredCount, out int keyCount) {
       var entries = new List<AddressableAssetEntry>();
       assetSettings.GetAllAssets(entries, true);
 
-      var groups = new SortedDictionary<string, SortedSet<string>>();
+      var result = new SortedSet<string>(StringComparer.Ordinal);
       ignoredCount = 0;
       keyCount = 0;
 
       foreach (var entry in entries) {
         if (entry == null || string.IsNullOrEmpty(entry.address)) continue;
         if (IsIgnored(entry)) {
+          // Debug.Log($"Skip {entry.address}");
           ignoredCount++;
           continue;
         }
 
-        var groupName = entry.parentGroup == null ? FallbackGroupName : entry.parentGroup.Name;
-        if (string.IsNullOrEmpty(groupName)) {
-          groupName = FallbackGroupName;
-        }
-
-        if (!groups.TryGetValue(groupName, out var keys)) {
-          keys = new SortedSet<string>(StringComparer.Ordinal);
-          groups.Add(groupName, keys);
-        }
-
-        if (keys.Add(entry.address)) {
-          keyCount++;
-        }
+        result.Add(entry.address);
       }
 
-      return groups;
+      return result;
     }
 
     private static bool IsIgnored(AddressableAssetEntry entry) {
@@ -69,44 +57,27 @@ namespace EditorTools.AddressableKeyGenerator {
       if (string.IsNullOrEmpty(assetPath)) return false;
 
       foreach (var directory in settings.GetIgnoredDirectories()) {
-        if (assetPath.StartsWith(directory)) {
-          // Debug.Log($"Skip {assetPath}");
-          return true;
-        }
+        if (assetPath.StartsWith(directory)) return true;
       }
       
       return false;
     }
-
-    // private static string ResolveAssetPath(AddressableAssetEntry entry) {
-    //   var current = entry;
-    //   for (var i = 0; current != null && i < 8; i++) {
-    //     if (!string.IsNullOrEmpty(current.AssetPath)) return current.AssetPath;
-    //     current = current.ParentEntry;
-    //   }
-    //   return string.Empty;
-    // }
-
+    
     #endregion
 
 
     #region Render Template
 
-    private static string RenderTemplate(SortedDictionary<string, SortedSet<string>> groups) {
+    private static string RenderTemplate(SortedSet<string> addresses) {
       var settings = GenerateSettings.instance;
       var textAsset = PackageAssetLoader.Load<TextAsset>("Editor/AddressableKeyGenerator/Templates/AddressableKey.scriban");
       var template = Template.Parse(textAsset.text);
 
-      var model = new ScriptObject();
-      model["namespace"] = settings.nameSpace;
-      model["classname"] = settings.classname;
-      model["groups"] = groups.Select(kv => new {
-        name = kv.Key,
-        values = kv.Value.ToList(),
-        count = kv.Value.Count,
-      }).ToList();
-
-      return template.Render(model);
+      return template.Render(new {
+        Namespace = settings.nameSpace,
+        Classname = settings.classname,
+        Addresses = addresses.ToArray(),
+      });
     }
 
     #endregion

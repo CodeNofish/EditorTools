@@ -5,12 +5,8 @@
 
 namespace {{ namespace }} {
   public static class {{ classname }} {
-{{ for group in groups }}
-    public static class {{ group.name | regex.replace `[/. ]` "_" }} {
-{{ for value in group.values }}
-      public const string {{ value | regex.replace `[/. ]` "_" }} = "{{ value }}";
-{{ end }}
-    }
+{{ for address in addresses }}
+    public const string {{ address | regex.replace `[/. ]` "_" }} = "{{ address }}";
 {{ end }}
   }
 }

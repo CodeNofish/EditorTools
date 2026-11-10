@@ -6,13 +6,11 @@
 namespace Core {
   public static class AddressableKeys {
 
-    public static class Default {
+    public const string GroupA_1_md = "GroupA/1.md";
 
-      public const string GroupB_2_md = "GroupB/2.md";
+    public const string GroupB_2_md = "GroupB/2.md";
 
-      public const string GroupC_3_md = "GroupC/3.md";
-
-    }
+    public const string GroupC_3_md = "GroupC/3.md";
 
   }
 }

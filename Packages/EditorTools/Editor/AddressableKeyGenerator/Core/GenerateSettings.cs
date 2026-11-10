@@ -44,6 +44,7 @@ namespace EditorTools.AddressableKeyGenerator {
     public string classname = "AddressableKeys";
 
     public string[] GetIgnoredDirectories() {
+      if (string.IsNullOrEmpty(ignoredDirectories)) return Array.Empty<string>();
       return ignoredDirectories.Split(',');
     }
 
