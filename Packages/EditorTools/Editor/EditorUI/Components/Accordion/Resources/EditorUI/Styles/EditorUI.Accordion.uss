@@ -1,0 +1,275 @@
+/*
+ * Accordion 结构样式
+ *
+ * 本文件只负责布局结构与变量消费，不写死任何颜色与尺寸
+ * 全部默认参数集中在 EditorUI.Accordion.Variables.uss
+ * 主题参数见 EditorUI.Accordion.Light.tss / EditorUI.Accordion.Dark.tss
+ *
+ * 职责边界：状态类由 Accordion / AccordionItem 按交互切换，本表只定义各状态的视觉表现
+ * 折叠逻辑：面板显隐由 AccordionItem.ApplyState 写入 style.display，USS 不重复声明 display
+ * 注释规则：每个选择器上方说明设计意图，关键声明补充说明为什么这样写
+ */
+
+/* --- 根容器 --- */
+
+/* 意图：根容器只负责纵向堆叠各 Item 并消费变量；视觉值全部来自变量表，
+   主题与变体只需覆写变量值，无需覆盖本文件的选择器 */
+.accordion {
+  /* 视觉表现：颜色、背景、边框、内外边距、圆角统一由变量注入 */
+  color: var(--editorui-accordion-color);
+  background-color: var(--editorui-accordion-background);
+  padding: var(--editorui-accordion-padding);
+  margin: var(--editorui-accordion-margin);
+  border-width: var(--editorui-accordion-border-width);
+  border-color: var(--editorui-accordion-border-color);
+  border-radius: var(--editorui-accordion-radius);
+  /* 布局：各 Item 自上而下排列，且不被父容器压缩高度 */
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* --- 项与分隔线 --- */
+
+/* 意图：单个 Item 内依次纵向放置标题行、折叠面板与分隔线；
+   左侧强调条借用 border-left 实现，避免为状态装饰额外增加一层元素 */
+.accordion__item {
+  /* 视觉：背景、左内边距与强调条均由变量控制，颜色由状态类切换 */
+  background-color: var(--editorui-accordion-item-background);
+  padding-left: var(--editorui-accordion-item-padding-left);
+  border-left-width: var(--editorui-accordion-item-accent-width);
+  border-left-color: var(--editorui-accordion-item-accent-color);
+  /* 布局：纵向堆叠且高度由内容决定 */
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* 意图：展开态只切换背景与左侧强调条颜色，不改任何布局属性；
+   面板的显示/隐藏由 C# 控制，避免 USS 与内联样式互相覆盖 */
+.accordion__item--expanded {
+  background-color: var(--editorui-accordion-item-background-expanded);
+  border-left-color: var(--editorui-accordion-item-expanded-accent-color);
+}
+
+/* 意图：禁用项整体弱化；交互禁用另由 C# 的 SetEnabled(false) 保证，这里只负责视觉 */
+.accordion__item--disabled {
+  opacity: var(--editorui-accordion-item-disabled-opacity);
+}
+
+/* 意图：用一个独立的 1px 高元素画分隔线，比给 Item 加下边框更容易按项控制显隐 */
+.accordion__separator {
+  /* 高度、上下留白与颜色取自变量表，便于主题统一调整 */
+  height: var(--editorui-accordion-separator-height);
+  margin-top: var(--editorui-accordion-separator-margin);
+  margin-bottom: var(--editorui-accordion-separator-margin);
+  background-color: var(--editorui-accordion-separator-color);
+  /* 固定细线高度，避免被父级弹性布局压扁 */
+  flex-shrink: 0;
+}
+
+/* 意图：容器级 hide-separator 开关与 C# 为末项添加的 --last 类共用同一条规则，
+   保证列表末尾不会出现一条悬空分隔线 */
+.accordion--hide-separator .accordion__separator,
+.accordion__item--last .accordion__separator {
+  display: none;
+}
+
+/* 意图：标题行横向承载触发器，并保持自身高度不被压缩 */
+.accordion__heading {
+  flex-direction: row;
+  flex-shrink: 0;
+}
+
+/* --- 触发器：hover / focus / pressed / expanded / disabled --- */
+
+/* 意图：整行作为可点击、可聚焦的触发区；视觉状态全部走变量，
+   过渡只作用于背景色，布局属性不参与动画以免尺寸抖动 */
+.accordion__trigger {
+  /* 视觉：默认颜色、背景、内边距、描边与圆角均由变量提供 */
+  color: var(--editorui-accordion-trigger-color);
+  background-color: var(--editorui-accordion-trigger-background);
+  padding: var(--editorui-accordion-trigger-padding);
+  margin: var(--editorui-accordion-trigger-margin);
+  border-width: var(--editorui-accordion-trigger-border-width);
+  border-color: var(--editorui-accordion-trigger-border-color);
+  border-radius: var(--editorui-accordion-trigger-radius);
+  /* 只对背景色做过渡：状态切换柔和，且不影响盒子尺寸 */
+  transition-property: background-color;
+  transition-duration: var(--editorui-accordion-transition-duration);
+  transition-timing-function: var(--editorui-accordion-transition-easing);
+  /* 布局：插槽、标题组、指示器横向排列并垂直居中 */
+  flex-direction: row;
+  align-items: center;
+  /* 占满标题行剩余宽度，空间不足时允许收缩 */
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+/* 意图：展开态由 C# ApplyState 添加状态类；其特异性低于 :hover，
+   因此鼠标悬停在已展开项上时仍由 hover 规则给出反馈 */
+.accordion__trigger--expanded {
+  color: var(--editorui-accordion-trigger-color-expanded);
+  background-color: var(--editorui-accordion-trigger-background-expanded);
+}
+
+/* 意图：指针悬停时给出颜色反馈，提示该行可点击 */
+.accordion__trigger:hover {
+  color: var(--editorui-accordion-trigger-color-hover);
+  background-color: var(--editorui-accordion-trigger-background-hover);
+}
+
+/* 意图：同时支持 UI Toolkit 原生 :focus 伪类与 C# FocusIn/FocusOut 添加的
+   --focus-visible 类，键盘导航时补上可见描边，不依赖鼠标操作 */
+.accordion__trigger:focus,
+.accordion__trigger--focus-visible {
+  /* 焦点背景较弱，主要靠这一对描边变量提供清晰的焦点环 */
+  color: var(--editorui-accordion-trigger-color-focus);
+  background-color: var(--editorui-accordion-trigger-background-focus);
+  border-width: var(--editorui-accordion-trigger-border-width-focus);
+  border-color: var(--editorui-accordion-trigger-border-color-focus);
+}
+
+/* 意图：由 C# PointerDown/PointerUp 切换的短时按压反馈，颜色比悬停更明确 */
+.accordion__trigger--pressed {
+  color: var(--editorui-accordion-trigger-color-pressed);
+  background-color: var(--editorui-accordion-trigger-background-pressed);
+}
+
+/* 意图：自定义状态类与 UI Toolkit 原生 :disabled 伪类双路径命中，
+   无论 C# 是加类还是 SetEnabled(false)，禁用态都不会丢失 */
+.accordion__trigger--disabled,
+.accordion__trigger:disabled {
+  /* 文字、背景与整体透明度一起弱化，明确不可交互 */
+  color: var(--editorui-accordion-trigger-color-disabled);
+  background-color: var(--editorui-accordion-trigger-background-disabled);
+  opacity: var(--editorui-accordion-trigger-disabled-opacity);
+}
+
+/* --- 插槽与文本 --- */
+
+/* 意图：三个容器先统一为纵向堆叠且不压缩，后续再用各自的规则把插槽改为横向 */
+.accordion__start-content,
+.accordion__end-content,
+.accordion__title-group {
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* 意图：标题组占据触发器的剩余宽度并允许收缩，把指示器稳定地推到行尾 */
+.accordion__title-group {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+/* 意图：前置插槽（如图标）横向排列并垂直居中，右侧留白与标题分开 */
+.accordion__start-content {
+  flex-direction: row;
+  align-items: center;
+  margin-right: var(--editorui-accordion-start-content-margin-right);
+}
+
+/* 意图：后置插槽（如操作按钮）横向排列并垂直居中，左侧留白与标题分开 */
+.accordion__end-content {
+  flex-direction: row;
+  align-items: center;
+  margin-left: var(--editorui-accordion-end-content-margin-left);
+}
+
+/* 意图：标题在纵向标题组内弹性填充剩余空间，并允许长标题换行而非截断 */
+.accordion__title {
+  flex-grow: 1;
+  color: var(--editorui-accordion-title-color);
+  font-size: var(--editorui-accordion-title-font-size);
+  /* 额外提供 bold 兜底：未挂载变量表时标题仍保持加粗层级 */
+  -unity-font-style: var(--editorui-accordion-title-font-style, bold);
+  white-space: normal;
+}
+
+/* 意图：仅展开触发器内的标题换色；后代选择器避免影响其他位置的同名类 */
+.accordion__trigger--expanded .accordion__title {
+  color: var(--editorui-accordion-title-color-expanded);
+}
+
+/* 意图：副标题作为次要信息，用更小字号与透明度建立层级，长文本同样允许换行 */
+.accordion__subtitle {
+  flex-grow: 1;
+  margin-top: var(--editorui-accordion-subtitle-margin-top);
+  color: var(--editorui-accordion-subtitle-color);
+  font-size: var(--editorui-accordion-subtitle-font-size);
+  opacity: var(--editorui-accordion-subtitle-opacity);
+  white-space: normal;
+}
+
+/* --- 指示器：展开时旋转并换色 --- */
+
+/* 意图：正方形容器承载 C# 绘制的箭头；显式声明 rotate: 0deg 作为过渡起点，
+   过渡只作用于 rotate，使展开/折叠时箭头平滑转向 */
+.accordion__indicator {
+  /* 宽高共用同一变量，紧凑变体与主题只需改一个值 */
+  width: var(--editorui-accordion-indicator-size);
+  height: var(--editorui-accordion-indicator-size);
+  margin-left: var(--editorui-accordion-indicator-margin-left);
+  color: var(--editorui-accordion-indicator-color);
+  background-color: var(--editorui-accordion-indicator-background);
+  border-radius: var(--editorui-accordion-indicator-radius);
+  /* 起始角度 + 只过渡旋转，时长独立可调 */
+  rotate: 0deg;
+  transition-property: rotate;
+  transition-duration: var(--editorui-accordion-indicator-transition-duration);
+  transition-timing-function: var(--editorui-accordion-transition-easing);
+  /* 固定为正方形，不被标题组挤压 */
+  flex-shrink: 0;
+}
+
+/* 意图：展开时旋转 90 度并换主色，与标题、触发器、强调条的状态保持一致 */
+.accordion__indicator--expanded {
+  color: var(--editorui-accordion-indicator-color-expanded);
+  rotate: var(--editorui-accordion-indicator-rotate-expanded);
+}
+
+/* 意图：该元素是 C# generateVisualContent 的绘制画布，弹性占满指示器剩余空间；
+   箭头线宽由变量表映射到自定义样式属性，主题切换后由 RefreshTheme 重绘 */
+.accordion__indicator-chevron {
+  flex-grow: 1;
+}
+
+/* 意图：容器级 hide-indicator 开关与项级隐藏开关共用同一规则；
+   C# 也会写内联 display，两处互为兜底，自定义样式表更容易接管 */
+.accordion--hide-indicator .accordion__indicator,
+.accordion__item--hide-indicator .accordion__indicator {
+  display: none;
+}
+
+/* --- 折叠面板与内容 --- */
+
+/* 意图：折叠面板作为内容裁剪容器；显隐由 C# 写入 style.display，
+   因此 USS 不声明 display，--panel--expanded 类也无需对应规则 */
+.accordion__panel {
+  /* 视觉值来自变量表，便于主题给展开区单独指定底色 */
+  background-color: var(--editorui-accordion-panel-background);
+  border-width: var(--editorui-accordion-panel-border-width);
+  border-color: var(--editorui-accordion-panel-border-color);
+  /* 纵向堆叠且不压缩；overflow 防止展开瞬间内容溢出容器边界 */
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 意图：Body 是 UXML 子元素与 Add 方法的默认父级，用内边距把内容与标题行、分隔线隔开 */
+.accordion__body {
+  /* 颜色、背景与内外边距全部由变量注入 */
+  color: var(--editorui-accordion-body-color);
+  background-color: var(--editorui-accordion-body-background);
+  padding: var(--editorui-accordion-body-padding);
+  margin: var(--editorui-accordion-body-margin);
+  /* 内容纵向堆叠，高度由子元素决定 */
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* --- 禁用整个手风琴 --- */
+
+/* 意图：容器级禁用时整体弱化，弱化力度比单项禁用更轻；
+   实际交互禁用由 C# 的 SetEnabled(false) 完成，此处只表达视觉状态 */
+.accordion--disabled {
+  opacity: var(--editorui-accordion-disabled-opacity);
+}

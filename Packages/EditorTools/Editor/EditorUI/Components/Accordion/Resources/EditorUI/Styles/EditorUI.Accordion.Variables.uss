@@ -1,0 +1,226 @@
+/*
+ * Accordion 组件变量表
+ */
+
+/* 意图：把组件全部默认参数收敛到根类，子元素经变量继承取值；主题与变体只改变量值 */
+.accordion {
+  /* 根容器 */
+  /* 根容器文字色：子元素文本的默认继承色，绑定全局默认文本 Token */
+  --editorui-accordion-color: var(--editorui-colors-default-text);
+  /* 根容器背景：默认透明，由 surface 变体或主题覆写为填充底色 */
+  --editorui-accordion-background: transparent;
+  /* 根容器描边色：默认透明，由 outline 变体覆写为可见边框 */
+  --editorui-accordion-border-color: transparent;
+  /* 根容器描边宽度：默认 0，outline 变体才会打开，常态不显示描边 */
+  --editorui-accordion-border-width: var(--editorui-spacing-0);
+  /* 根容器内边距：默认 0，带底色或描边的变体覆写以留出内容空白 */
+  --editorui-accordion-padding: var(--editorui-spacing-0);
+  /* 根容器外边距：默认 0，避免组件影响父级布局 */
+  --editorui-accordion-margin: var(--editorui-spacing-0);
+  /* 根容器圆角：默认直角，带底色或描边的变体覆写为大圆角 */
+  --editorui-accordion-radius: var(--editorui-radius-none);
+
+  /* 变体 surface / outline */
+  /* surface 变体底色：取列表隔行背景，形成“整块填充”的视觉 */
+  --editorui-accordion-surface-background: var(--editorui-colors-alternated_rows-background);
+  /* surface 变体描边色：默认透明，与 outline 变体区分 */
+  --editorui-accordion-surface-border-color: transparent;
+  /* outline 变体底色：默认透明，保持“只描边不填充”的外观 */
+  --editorui-accordion-outline-background: transparent;
+  /* outline 变体描边色：取默认边框 Token，供组件 USS 的 border-color 消费 */
+  --editorui-accordion-outline-border-color: var(--editorui-colors-default-border);
+  /* 变体统一内边距：4px 6px，让内容不贴底色或描边边缘 */
+  --editorui-accordion-variant-padding: 4px 6px;
+  /* 变体统一圆角：大圆角 10px，两种变体共用同一外形 */
+  --editorui-accordion-variant-radius: var(--editorui-radius-lg);
+  /* 变体统一描边宽度：细边框 1px，仅 outline 变体启用 */
+  --editorui-accordion-variant-border-width: var(--editorui-border-width-thin);
+
+  /* 项 */
+  /* 项背景：静止态透明，展开时切到 item-background-expanded */
+  --editorui-accordion-item-background: transparent;
+  /* 展开项背景：切换为表面色，突出当前展开区域 */
+  --editorui-accordion-item-background-expanded: var(--editorui-colors-surface-background);
+  /* 项左侧强调条颜色：静止态透明，宽度仍占位以免展开时内容位移 */
+  --editorui-accordion-item-accent-color: transparent;
+  /* 展开项强调条颜色：用主色标识当前展开的项 */
+  --editorui-accordion-item-expanded-accent-color: var(--editorui-colors-primary);
+  /* 项左侧强调条宽度：粗边框 2px，供 border-left-width 消费 */
+  --editorui-accordion-item-accent-width: var(--editorui-border-width-thick);
+  /* 项左侧内边距：默认 0，主题可加大以避免内容紧贴强调条 */
+  --editorui-accordion-item-padding-left: var(--editorui-spacing-0);
+  /* 禁用项透明度：绑定全局禁用透明度，弱化整项但不改变布局 */
+  --editorui-accordion-item-disabled-opacity: var(--editorui-opacity-disabled);
+
+  /* 分隔线 */
+  /* 分隔线颜色：取工具栏边框色，用于项之间的细线 */
+  --editorui-accordion-separator-color: var(--editorui-colors-toolbar-border);
+  /* 分隔线高度：细边框 1px，作为一条纯色细线渲染 */
+  --editorui-accordion-separator-height: var(--editorui-border-width-thin);
+  /* 分隔线上下外边距：2px，避免细线贴住上下内容 */
+  --editorui-accordion-separator-margin: var(--editorui-spacing-1);
+
+  /* 触发器：默认 / hover / focus / pressed / expanded / disabled */
+  /* 触发器文字色：静止态取默认文本色 */
+  --editorui-accordion-trigger-color: var(--editorui-colors-default-text);
+  /* 触发器悬停文字色：鼠标悬停时的文本反馈 */
+  --editorui-accordion-trigger-color-hover: var(--editorui-colors-default-text-hover);
+  /* 触发器焦点文字色：与默认同色，焦点主要靠背景与描边表达 */
+  --editorui-accordion-trigger-color-focus: var(--editorui-colors-default-text);
+  /* 触发器按下文字色：保持默认，按下反馈由背景色承担 */
+  --editorui-accordion-trigger-color-pressed: var(--editorui-colors-default-text);
+  /* 触发器展开文字色：主色系深色文字，与展开态标题呼应 */
+  --editorui-accordion-trigger-color-expanded: var(--editorui-colors-primary-text);
+  /* 触发器禁用文字色：取禁用文本色，配合透明度弱化 */
+  --editorui-accordion-trigger-color-disabled: var(--editorui-colors-disabled-text);
+  /* 触发器背景：静止态透明，让各项在默认变体下保持轻量 */
+  --editorui-accordion-trigger-background: transparent;
+  /* 触发器悬停背景：高亮悬停色，指示当前可点击行 */
+  --editorui-accordion-trigger-background-hover: var(--editorui-colors-highlight-background-hover);
+  /* 触发器焦点背景：非活动高亮色，弱于悬停但可辨识键盘焦点 */
+  --editorui-accordion-trigger-background-focus: var(--editorui-colors-highlight-background-inactive);
+  /* 触发器按下背景：选中底色，给出明确的按压反馈 */
+  --editorui-accordion-trigger-background-pressed: var(--editorui-colors-selected-background);
+  /* 触发器展开背景：取检视面板标题栏色，表现“已展开的标题行” */
+  --editorui-accordion-trigger-background-expanded: var(--editorui-colors-inspector_titlebar-background);
+  /* 触发器禁用背景：保持透明，由禁用透明度整体弱化 */
+  --editorui-accordion-trigger-background-disabled: transparent;
+  /* 触发器描边色：静止态透明，仅焦点态改为可见边框 */
+  --editorui-accordion-trigger-border-color: transparent;
+  /* 触发器焦点描边色：取全局焦点边框，键盘导航时清晰可见 */
+  --editorui-accordion-trigger-border-color-focus: var(--editorui-colors-focus-border);
+  /* 触发器描边宽度：静止态 0，避免常态出现描边 */
+  --editorui-accordion-trigger-border-width: var(--editorui-spacing-0);
+  /* 触发器焦点描边宽度：细边框 1px，与焦点描边色成对使用 */
+  --editorui-accordion-trigger-border-width-focus: var(--editorui-border-width-thin);
+  /* 触发器内边距：8px 6px，保证整行有足够的点击热区 */
+  --editorui-accordion-trigger-padding: 8px 6px;
+  /* 触发器外边距：默认 0，标题行之间靠分隔线留白 */
+  --editorui-accordion-trigger-margin: var(--editorui-spacing-0);
+  /* 触发器圆角：中圆角 6px，主题可改用控件圆角基准 */
+  --editorui-accordion-trigger-radius: var(--editorui-radius-md);
+  /* 禁用触发器透明度：绑定全局禁用透明度 */
+  --editorui-accordion-trigger-disabled-opacity: var(--editorui-opacity-disabled);
+
+  /* 文本 */
+  /* 标题文字色：静止态取默认文本色 */
+  --editorui-accordion-title-color: var(--editorui-colors-default-text);
+  /* 展开态标题文字色：切为主色系深色，强化当前项 */
+  --editorui-accordion-title-color-expanded: var(--editorui-colors-primary-text);
+  /* 标题字号：中字号 12px，作为正文默认字号 */
+  --editorui-accordion-title-font-size: var(--editorui-font-size-md);
+  /* 标题字重：加粗；组件 USS 中还带 bold 兜底，变量缺失时仍保持加粗 */
+  --editorui-accordion-title-font-style: var(--editorui-font-style-bold);
+  /* 副标题文字色：取标签文本色，与标题形成层级 */
+  --editorui-accordion-subtitle-color: var(--editorui-colors-label-text);
+  /* 副标题字号：小字号 11px，小于标题 */
+  --editorui-accordion-subtitle-font-size: var(--editorui-font-size-sm);
+  /* 副标题透明度：弱化次级信息，不必另设更浅的文字色 */
+  --editorui-accordion-subtitle-opacity: var(--editorui-opacity-muted);
+  /* 副标题上外边距：2px，与标题保持紧凑的行间距 */
+  --editorui-accordion-subtitle-margin-top: var(--editorui-spacing-1);
+
+  /* 插槽 */
+  /* 前置插槽右外边距：6px，把图标与标题组分开 */
+  --editorui-accordion-start-content-margin-right: var(--editorui-spacing-3);
+  /* 后置插槽左外边距：6px，把操作按钮与标题组分开 */
+  --editorui-accordion-end-content-margin-left: var(--editorui-spacing-3);
+
+  /* 指示器 */
+  /* 指示器颜色：箭头默认色，C# 绘制时读取 resolvedStyle.color */
+  --editorui-accordion-indicator-color: var(--editorui-colors-default-text);
+  /* 展开态指示器颜色：切为主色，与展开态标题同步 */
+  --editorui-accordion-indicator-color-expanded: var(--editorui-colors-primary);
+  /* 指示器背景：透明，只显示 C# 绘制的箭头 */
+  --editorui-accordion-indicator-background: transparent;
+  /* 指示器尺寸：14px 正方形，宽度与高度共用，便于紧凑变体整体缩小 */
+  --editorui-accordion-indicator-size: 14px;
+  /* 指示器圆角：小圆角 3px，作为箭头的可选焦点底框 */
+  --editorui-accordion-indicator-radius: var(--editorui-radius-sm);
+  /* 指示器左外边距：6px，与标题组保持间距并靠行尾对齐 */
+  --editorui-accordion-indicator-margin-left: var(--editorui-spacing-3);
+  /* 指示器箭头线宽：无单位 1.5，经 chevron 映射后由 C# 绘制读取 */
+  --editorui-accordion-indicator-line-width: 1.5;
+  /* 展开时旋转角度：90deg，箭头由朝右转为朝下 */
+  --editorui-accordion-indicator-rotate-expanded: 90deg;
+  /* 指示器旋转时长：常规 0.18s，独立于触发器背景过渡 */
+  --editorui-accordion-indicator-transition-duration: var(--editorui-motion-duration-normal);
+
+  /* 面板与内容 */
+  /* 折叠面板背景：默认透明，主题可改为表面色 */
+  --editorui-accordion-panel-background: transparent;
+  /* 折叠面板描边色：默认透明，不给展开内容加边框 */
+  --editorui-accordion-panel-border-color: transparent;
+  /* 折叠面板描边宽度：默认 0 */
+  --editorui-accordion-panel-border-width: var(--editorui-spacing-0);
+  /* 内容区背景：默认透明，继承所在面板/根容器的底色 */
+  --editorui-accordion-body-background: transparent;
+  /* 内容区文字色：UXML 子元素文本的默认继承色 */
+  --editorui-accordion-body-color: var(--editorui-colors-default-text);
+  /* 内容区内边距：4px 6px 12px 6px，底部留更多空白与分隔线隔开 */
+  --editorui-accordion-body-padding: 4px 6px 12px 6px;
+  /* 内容区外边距：默认 0，留白统一由内边距控制 */
+  --editorui-accordion-body-margin: var(--editorui-spacing-0);
+
+  /* 动效与状态，transition-property 由组件 USS 固定声明 */
+  /* 触发器背景过渡时长：快速 0.15s，状态切换不拖沓 */
+  --editorui-accordion-transition-duration: var(--editorui-motion-duration-fast);
+  /* 统一缓动曲线：linear，触发器与指示器共用，保证观感一致 */
+  --editorui-accordion-transition-easing: var(--editorui-motion-easing);
+  /* 整体禁用透明度：弱化透明度 0.65，比单项禁用更轻 */
+  --editorui-accordion-disabled-opacity: var(--editorui-opacity-muted);
+}
+
+/* 意图：紧凑变体只覆写度量，不动颜色与状态，因而可与 surface / outline 叠加 */
+.accordion--compact {
+  /* 触发器内边距收紧为 4px 6px，降低每行高度 */
+  --editorui-accordion-trigger-padding: 4px 6px;
+  /* 内容区内边距收紧为 2px 6px 6px 6px，减少展开区留白 */
+  --editorui-accordion-body-padding: 2px 6px 6px 6px;
+  /* 标题降为小字号 11px，匹配紧凑行高 */
+  --editorui-accordion-title-font-size: var(--editorui-font-size-sm);
+  /* 副标题降为超小字号 10px，保持与标题的字号层级 */
+  --editorui-accordion-subtitle-font-size: var(--editorui-font-size-xs);
+  /* 指示器缩为 12px，避免图标比文字更抢眼 */
+  --editorui-accordion-indicator-size: 12px;
+}
+
+/* 意图：surface 变体只改根容器变量，给整块区域填充底色与圆角，不启用描边 */
+.accordion--surface {
+  /* 根背景改用 surface 底色 */
+  --editorui-accordion-background: var(--editorui-accordion-surface-background);
+  /* 描边色保持 surface 变体的透明值 */
+  --editorui-accordion-border-color: var(--editorui-accordion-surface-border-color);
+  /* 内边距采用变体统一值，内容不贴边 */
+  --editorui-accordion-padding: var(--editorui-accordion-variant-padding);
+  /* 圆角采用变体统一值 */
+  --editorui-accordion-radius: var(--editorui-accordion-variant-radius);
+}
+
+/* 意图：outline 变体只靠描边勾勒边界；打开 border-width 是它与 surface 的关键差异 */
+.accordion--outline {
+  /* 根背景改用 outline 变体的透明底色 */
+  --editorui-accordion-background: var(--editorui-accordion-outline-background);
+  /* 描边色改用 outline 变体的边框色 */
+  --editorui-accordion-border-color: var(--editorui-accordion-outline-border-color);
+  /* 打开变体描边宽度，使上面的边框色可见 */
+  --editorui-accordion-border-width: var(--editorui-accordion-variant-border-width);
+  /* 内边距采用变体统一值 */
+  --editorui-accordion-padding: var(--editorui-accordion-variant-padding);
+  /* 圆角采用变体统一值 */
+  --editorui-accordion-radius: var(--editorui-accordion-variant-radius);
+}
+
+/* 意图：关闭 USS 过渡；两个时长变量需同时归零，否则背景或旋转仍会动画 */
+.accordion--no-animation {
+  /* 触发器背景过渡时长归零 */
+  --editorui-accordion-transition-duration: var(--editorui-motion-duration-none);
+  /* 指示器旋转过渡时长归零 */
+  --editorui-accordion-indicator-transition-duration: var(--editorui-motion-duration-none);
+}
+
+/* 意图：把组件级线宽映射为 C# 自定义样式属性名；主题或容器覆写线宽后自动跟随 */
+.accordion__indicator-chevron {
+  /* C# 用 CustomStyleProperty<float> 读取的变量：复用指示器线宽，避免两处硬编码 */
+  --editorui-accordion-chevron-line-width: var(--editorui-accordion-indicator-line-width);
+}

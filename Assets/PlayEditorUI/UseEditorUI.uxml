@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <EditorUI.Components.Accordion variant="Default">
+        <EditorUI.Components.AccordionItem title="标题" subtitle="副标题">
+            <ui:Label text="123456"/>
+        </EditorUI.Components.AccordionItem>
+    </EditorUI.Components.Accordion>
+</ui:UXML>

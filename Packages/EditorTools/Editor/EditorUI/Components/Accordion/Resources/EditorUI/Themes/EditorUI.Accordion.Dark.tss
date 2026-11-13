@@ -1,0 +1,55 @@
+/*
+ * Accordion 组件级深色默认参数
+ */
+
+.accordion {
+  /* 背景与边框 */
+  --editorui-accordion-color: var(--editorui-colors-default-text);
+  --editorui-accordion-surface-background: var(--editorui-colors-overlay-background);
+  --editorui-accordion-surface-border-color: var(--editorui-colors-default-border);
+  --editorui-accordion-outline-background: var(--editorui-colors-surface-background);
+  --editorui-accordion-outline-border-color: var(--editorui-colors-strong-border);
+  --editorui-accordion-variant-padding: 4px 6px;
+  --editorui-accordion-variant-radius: var(--editorui-radius-container);
+
+  /* 项与分隔线 */
+  --editorui-accordion-item-background-expanded: var(--editorui-colors-overlay-background);
+  --editorui-accordion-item-expanded-accent-color: var(--editorui-colors-primary);
+  --editorui-accordion-item-padding-left: var(--editorui-spacing-3);
+  --editorui-accordion-separator-color: var(--editorui-colors-default-border);
+  --editorui-accordion-separator-margin: var(--editorui-spacing-1);
+
+  /* 触发器状态 */
+  --editorui-accordion-trigger-color-hover: var(--editorui-colors-default-text-hover);
+  --editorui-accordion-trigger-color-expanded: var(--editorui-colors-primary-text);
+  --editorui-accordion-trigger-background-hover: var(--editorui-colors-inspector_titlebar-background-hover);
+  --editorui-accordion-trigger-background-focus: var(--editorui-colors-highlight-background-inactive);
+  --editorui-accordion-trigger-background-pressed: var(--editorui-colors-selected-background);
+  --editorui-accordion-trigger-background-expanded: var(--editorui-colors-alternated_rows-background);
+  --editorui-accordion-trigger-border-color-focus: var(--editorui-colors-focus-border);
+  --editorui-accordion-trigger-margin: var(--editorui-spacing-0);
+  --editorui-accordion-trigger-radius: var(--editorui-radius-control);
+
+  /* 文本与插槽 */
+  --editorui-accordion-title-color-expanded: var(--editorui-colors-primary-text);
+  --editorui-accordion-subtitle-color: var(--editorui-colors-muted-text);
+  --editorui-accordion-subtitle-opacity: var(--editorui-opacity-muted);
+  --editorui-accordion-start-content-margin-right: var(--editorui-spacing-control);
+  --editorui-accordion-end-content-margin-left: var(--editorui-spacing-control);
+
+  /* 指示器 */
+  --editorui-accordion-indicator-color-expanded: var(--editorui-colors-primary);
+  --editorui-accordion-indicator-margin-left: var(--editorui-spacing-control);
+  --editorui-accordion-indicator-line-width: var(--editorui-indicator-line-width);
+
+  /* 面板与内容 */
+  --editorui-accordion-panel-background: var(--editorui-colors-overlay-background);
+  --editorui-accordion-body-background: var(--editorui-colors-overlay-background);
+  --editorui-accordion-body-color: var(--editorui-colors-default-text);
+  --editorui-accordion-body-margin: var(--editorui-spacing-0);
+
+  /* 状态透明度 */
+  --editorui-accordion-disabled-opacity: var(--editorui-opacity-muted);
+  --editorui-accordion-trigger-disabled-opacity: var(--editorui-opacity-disabled);
+  --editorui-accordion-item-disabled-opacity: var(--editorui-opacity-disabled);
+}

@@ -1,0 +1,197 @@
+/*
+ * EditorUI 基础变量表
+ */
+
+:root {
+  /* 背景图层 */
+  /* 窗口底层背景：编辑器窗口与根容器的最外层底色 */
+  --editorui-colors-window-background: #383838;
+  /* 默认控件背景：按钮、下拉框等常规控件的静止态底色 */
+  --editorui-colors-default-background: #383838;
+  /* 隔行背景：列表、表格交替行的底色，用于提升长列表可读性 */
+  --editorui-colors-alternated_rows-background: #3E3E3E;
+  /* 工具栏背景：Toolbar 及其容器的填充色 */
+  --editorui-colors-toolbar-background: #3C3C3C;
+  /* 检视面板标题栏背景：Inspector 分组标题栏的静止态底色 */
+  --editorui-colors-inspector_titlebar-background: #3E3E3E;
+  /* 检视面板标题栏悬停背景：鼠标悬停时标题栏的高亮底色 */
+  --editorui-colors-inspector_titlebar-background-hover: #474747;
+  /* 按钮悬停背景：按钮 hover 态的填充色 */
+  --editorui-colors-button-background-hover: #676767;
+  /* 选项卡选中背景：选中态 Tab 的填充色 */
+  --editorui-colors-tab-background-checked: #3C3C3C;
+  /* 表面背景：卡片、弹出面板等抬升层的底色，浅色主题下为纯白 */
+  --editorui-colors-surface-background: #2B2B2B;
+  /* 表面悬停背景：卡片、列表项 hover 态的填充色 */
+  --editorui-colors-surface-background-hover: #333333;
+  /* 浮层背景：遮罩、弹出层等覆盖内容的底色 */
+  --editorui-colors-overlay-background: #323232;
+  /* 输入框背景：TextField 等输入控件的填充色 */
+  --editorui-colors-input_field-background: #2A2A2A;
+  /* 提示框背景：Tooltip 的深色底，保证反色文字对比度 */
+  --editorui-colors-tooltip-background: #1A1A1A;
+
+  /* 高亮与状态 */
+  /* 高亮背景：选中项、焦点项的主高亮底色 */
+  --editorui-colors-highlight-background: #2C5D87;
+  /* 高亮悬停背景：高亮项 hover 时的加深底色 */
+  --editorui-colors-highlight-background-hover: #3A72B0;
+  /* 非活动高亮背景：窗口失焦时选中态的低饱和底色 */
+  --editorui-colors-highlight-background-inactive: #4A4A4A;
+  /* 高亮文本：高亮底色上使用的反色文字 */
+  --editorui-colors-highlight-text: #FFFFFF;
+  /* 输入框聚焦边框：TextField 获得焦点时的边框色 */
+  --editorui-colors-input_field-border-focus: #3A79BB;
+  /* 通用焦点边框：键盘 focus 时的描边色，独立于 Unity 输入框变量 */
+  --editorui-colors-focus-border: #7BAEFA;
+  /* 选中底色：pressed 态或范围选中的浅蓝底色 */
+  --editorui-colors-selected-background: #4F657F;
+
+  /* 文本 */
+  /* 默认文本：正文与常规标签的静止态文字色 */
+  --editorui-colors-default-text: #EEEEEE;
+  /* 默认文本悬停：正文 hover 态的文字色 */
+  --editorui-colors-default-text-hover: #FFFFFF;
+  /* 标签文本：字段名、Label 等属性名文字色 */
+  --editorui-colors-label-text: #BDBDBD;
+  /* 帮助框文本：HelpBox 说明文字色 */
+  --editorui-colors-helpbox-text: #BDBDBD;
+  /* 错误文本：校验失败、错误提示的文字色 */
+  --editorui-colors-error-text: #FF6B6B;
+  /* 警告文本：警告提示的文字色 */
+  --editorui-colors-warning-text: #FFC107;
+  /* 链接文本：可点击超链接的文字色 */
+  --editorui-colors-link-text: #7BAEFA;
+  /* 弱化文本：次要信息、辅助说明的文字色 */
+  --editorui-colors-muted-text: #9A9A9A;
+  /* 禁用文本：不可用控件的文字色，通常配合 opacity-disabled 使用 */
+  --editorui-colors-disabled-text: #6E6E6E;
+  /* 反色文本：深色底、强调底上的浅色文字 */
+  --editorui-colors-inverse-text: #090909;
+
+  /* 边框与分隔线 */
+  /* 默认边框：常规控件与容器的描边色 */
+  --editorui-colors-default-border: #303030;
+  /* 工具栏边框：工具栏底部分隔线颜色 */
+  --editorui-colors-toolbar-border: #232323;
+  /* 窗口边框：编辑器窗口外轮廓的描边色 */
+  --editorui-colors-window-border: #191919;
+  /* 检视面板标题栏边框：标题栏与内容区之间的分隔线 */
+  --editorui-colors-inspector_titlebar-border: #232323;
+  /* 帮助框边框：HelpBox 四周的描边色 */
+  --editorui-colors-helpbox-border: #232323;
+  /* 强调边框：需要突出边界或分组的加强型分隔线 */
+  --editorui-colors-strong-border: #5A5A5A;
+  /* 轻边框：比默认边框更浅的细分隔线 */
+  --editorui-colors-subtle-border: #454545;
+
+  /* 语义色 */
+  /* 主色：品牌与主操作（按钮、图标、强调条）的强调色 */
+  --editorui-colors-primary: #7BAEFA;
+  /* 主色背景：主色系提示区、选中区的浅色底 */
+  --editorui-colors-primary-background: #2B3F5C;
+  /* 主色文本：主色系深色文字，用于展开态标题等需高对比的场景 */
+  --editorui-colors-primary-text: #A8CBFF;
+  /* 成功色：成功状态的图标、边框与强调色 */
+  --editorui-colors-success: #66BB6A;
+  /* 成功背景：成功提示区的浅色底 */
+  --editorui-colors-success-background: #2C4230;
+  /* 警告色：警告状态的图标、边框与强调色 */
+  --editorui-colors-warning: #FFC107;
+  /* 警告背景：警告提示区的浅色底 */
+  --editorui-colors-warning-background: #4A3B1E;
+  /* 危险色：危险/错误状态的图标、边框与强调色 */
+  --editorui-colors-danger: #FF6B6B;
+  /* 危险背景：危险提示区的浅色底 */
+  --editorui-colors-danger-background: #4A2A2A;
+  /* 信息色：中性信息提示的图标、边框与强调色 */
+  --editorui-colors-info: #64B5F6;
+  /* 信息背景：信息提示区的浅色底 */
+  --editorui-colors-info-background: #253F52;
+
+  /* 间距 */
+  /* 间距 0：0px，用于重置 margin / padding / border-width */
+  --editorui-spacing-0: 0px;
+  /* 间距 1：2px，最小间距，用于文本与图标的紧凑微调 */
+  --editorui-spacing-1: 2px;
+  /* 间距 2：4px，紧凑元素之间的小间距 */
+  --editorui-spacing-2: 4px;
+  /* 间距 3：6px，控件内间距与插槽间距的常用值 */
+  --editorui-spacing-3: 6px;
+  /* 间距 4：8px，常规控件之间的间距 */
+  --editorui-spacing-4: 8px;
+  /* 间距 5：12px，内容区与容器边之间的内边距 */
+  --editorui-spacing-5: 12px;
+  /* 间距 6：16px，分组之间的留白 */
+  --editorui-spacing-6: 16px;
+  /* 间距 7：24px，最大间距，用于大区块之间的留白 */
+  --editorui-spacing-7: 24px;
+
+  /* 圆角 */
+  /* 无圆角：0px，用于需要直角拼接的元素，也用于清除默认圆角 */
+  --editorui-radius-none: 0px;
+  /* 小圆角：3px，用于指示器、徽标等小型元素 */
+  --editorui-radius-sm: 3px;
+  /* 中圆角：6px，用于按钮、触发器等常规控件 */
+  --editorui-radius-md: 6px;
+  /* 大圆角：10px，用于卡片、面板等容器 */
+  --editorui-radius-lg: 10px;
+  /* 胶囊圆角：999px，用于胶囊按钮、圆形标记 */
+  --editorui-radius-pill: 999px;
+
+  /* 边框宽度 */
+  /* 细边框：1px，用于常规描边与分隔线 */
+  --editorui-border-width-thin: 1px;
+  /* 标准边框：1px，语义上表示控件默认边框，与细边框同值便于独立调整 */
+  --editorui-border-width-normal: 1px;
+  /* 粗边框：2px，用于强调边框、左侧强调条 */
+  --editorui-border-width-thick: 2px;
+
+  /* 字号 */
+  /* 超小字号：10px，用于角标、辅助标记 */
+  --editorui-font-size-xs: 10px;
+  /* 小字号：11px，用于副标题、次要文本与紧凑变体 */
+  --editorui-font-size-sm: 11px;
+  /* 中字号：12px，正文与标题的默认字号 */
+  --editorui-font-size-md: 12px;
+  /* 大字号：14px，用于小标题 */
+  --editorui-font-size-lg: 14px;
+  /* 超大字号：16px，用于主标题 */
+  --editorui-font-size-xl: 16px;
+
+  /* 字体样式 */
+  /* 常规字重：供 -unity-font-style 使用的默认值 */
+  --editorui-font-style-normal: normal;
+  /* 加粗字重：用于标题等需要强调的文本 */
+  --editorui-font-style-bold: bold;
+
+  /* 透明度 */
+  /* 禁用透明度：用于禁用态控件整体弱化 */
+  --editorui-opacity-disabled: 0.4;
+  /* 弱化透明度：用于副标题等次要内容 */
+  --editorui-opacity-muted: 0.7;
+  /* 轻微弱化透明度：用于只需略微降低存在感的内容 */
+  --editorui-opacity-subtle: 0.9;
+
+  /* 动效 */
+  /* 快速时长：0.15s，用于背景色等短促状态切换 */
+  --editorui-motion-duration-fast: 0.15s;
+  /* 常规时长：0.18s，用于指示器旋转等默认过渡 */
+  --editorui-motion-duration-normal: 0.18s;
+  /* 慢速时长：0.3s，用于展开/折叠等较大幅度的动画 */
+  --editorui-motion-duration-slow: 0.3s;
+  /* 缓动曲线：linear，供 transition-timing-function 统一引用 */
+  --editorui-motion-easing: linear;
+  /* 零时长：0s，供 no-animation 变体关闭过渡效果 */
+  --editorui-motion-duration-none: 0s;
+
+  /* 主题相关度量 */
+  /* 控件圆角基准：供控件级变量绑定 */
+  --editorui-radius-control: 3px;
+  /* 容器圆角基准：供卡片、surface 变体等容器级变量绑定 */
+  --editorui-radius-container: 6px;
+  /* 控件间距基准：供插槽 margin、触发器 margin 等组件变量绑定 */
+  --editorui-spacing-control: 8px;
+  /* 指示器线宽：无单位浮点数，供 C# 绘制箭头时按 CustomStyleProperty<float> 读取 */
+  --editorui-indicator-line-width: 1.75;
+}

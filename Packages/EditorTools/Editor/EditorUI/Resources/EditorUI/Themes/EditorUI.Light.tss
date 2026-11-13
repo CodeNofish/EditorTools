@@ -1,0 +1,77 @@
+/*
+ * EditorUI 浅色主题默认参数
+ */
+
+@import url("/Packages/fishwork.editor-tools/Editor/EditorUI/Components/Accordion/Resources/EditorUI/Themes/EditorUI.Accordion.Light.tss");
+
+
+:root {
+  /* 背景图层 */
+  --editorui-colors-window-background: #C8C8C8;
+  --editorui-colors-default-background: #E4E4E4;
+  --editorui-colors-alternated_rows-background: #ECECEC;
+  --editorui-colors-toolbar-background: #CBCBCB;
+  --editorui-colors-inspector_titlebar-background: #CBCBCB;
+  --editorui-colors-inspector_titlebar-background-hover: #D6D6D6;
+  --editorui-colors-button-background-hover: #ECECEC;
+  --editorui-colors-tab-background-checked: #CBCBCB;
+  --editorui-colors-surface-background: #FFFFFF;
+  --editorui-colors-surface-background-hover: #F2F2F2;
+  --editorui-colors-overlay-background: #FAFAFA;
+  --editorui-colors-input_field-background: #F0F0F0;
+  --editorui-colors-tooltip-background: #2B2B2B;
+
+  /* 高亮与状态 */
+  --editorui-colors-highlight-background: #3A72B0;
+  --editorui-colors-highlight-background-hover: #4A82C0;
+  --editorui-colors-highlight-background-inactive: #B0B0B0;
+  --editorui-colors-highlight-text: #FFFFFF;
+  --editorui-colors-input_field-border-focus: #1D5087;
+  --editorui-colors-focus-border: #1D5087;
+  --editorui-colors-selected-background: #B0D2FC;
+
+  /* 文本 */
+  --editorui-colors-default-text: #090909;
+  --editorui-colors-default-text-hover: #000000;
+  --editorui-colors-label-text: #161616;
+  --editorui-colors-helpbox-text: #161616;
+  --editorui-colors-error-text: #B3261E;
+  --editorui-colors-warning-text: #B26A00;
+  --editorui-colors-link-text: #1D5087;
+  --editorui-colors-muted-text: #6B6B6B;
+  --editorui-colors-disabled-text: #9B9B9B;
+  --editorui-colors-inverse-text: #FFFFFF;
+
+  /* 边框与分隔线 */
+  --editorui-colors-default-border: #B2B2B2;
+  --editorui-colors-toolbar-border: #8A8A8A;
+  --editorui-colors-window-border: #6B6B6B;
+  --editorui-colors-inspector_titlebar-border: #A9A9A9;
+  --editorui-colors-helpbox-border: #A9A9A9;
+  --editorui-colors-strong-border: #6B6B6B;
+  --editorui-colors-subtle-border: #D6D6D6;
+
+  /* 语义色 */
+  --editorui-colors-primary: #2C6ECB;
+  --editorui-colors-primary-background: #E3EFFD;
+  --editorui-colors-primary-text: #15539E;
+  --editorui-colors-success: #2E7D32;
+  --editorui-colors-success-background: #E5F3E6;
+  --editorui-colors-warning: #B26A00;
+  --editorui-colors-warning-background: #FCF0DC;
+  --editorui-colors-danger: #C62828;
+  --editorui-colors-danger-background: #FBE6E6;
+  --editorui-colors-info: #0277BD;
+  --editorui-colors-info-background: #E1F2FA;
+
+  /* 透明度 */
+  --editorui-opacity-disabled: 0.45;
+  --editorui-opacity-muted: 0.65;
+  --editorui-opacity-subtle: 0.85;
+
+  /* 主题相关度量 */
+  --editorui-radius-control: 6px;
+  --editorui-radius-container: 10px;
+  --editorui-spacing-control: 6px;
+  --editorui-indicator-line-width: 1.5;
+}
